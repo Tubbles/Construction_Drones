@@ -679,6 +679,7 @@ local check_upgrade = function(entity, player)
     target = target,
     extra_targets = extra_targets,
     upgrade_prototype = upgrade_prototype,
+    upgrade_direction = entity.get_upgrade_direction(),
     item_used_to_place = item.name
   }
 
@@ -1732,6 +1733,7 @@ local process_upgrade_command = function(drone_data)
 
   local surface = drone.surface
   local prototype = drone_data.upgrade_prototype
+  local direction = drone_data.upgrade_direction
   local original_name = target.name
   local entity_type = target.type
   local index = unique_index(target)
@@ -1743,7 +1745,7 @@ local process_upgrade_command = function(drone_data)
   {
     name = prototype.name,
     position = position,
-    direction = target.direction,
+    direction = direction,
     fast_replace = true,
     force = target.force,
     spill = false,
