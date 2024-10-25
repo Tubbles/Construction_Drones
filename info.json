@@ -7,9 +7,9 @@
     "homepage": "https://github.com/Tubbles/Construction_Drones",
     "description": "Adds ground based construction robots. A repackage of roy192's fork of the original mod by Klonan",
     "dependencies": [
-        "base >= 1.1.0",
+        "base >= 2.0",
         "(?) Hovercraft",
         "(?) walls-block-spitters"
     ],
-    "factorio_version": "1.1"
+    "factorio_version": "2.0"
 }

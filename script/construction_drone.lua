@@ -95,7 +95,7 @@ local get_prototype = function(name)
     if prototype_cache[name] then
         return prototype_cache[name]
     end
-    local prototype = game.entity_prototypes[name]
+    local prototype = prototypes.entity[name]
     prototype_cache[name] = prototype
     return prototype
 end
@@ -141,7 +141,7 @@ local get_radius_map = function()
         return radius_map
     end
     radius_map = {}
-    for k, entity in pairs(game.entity_prototypes) do
+    for k, entity in pairs(prototypes.entity) do
         radius_map[k] = entity.radius
     end
     return radius_map
@@ -379,7 +379,7 @@ local make_path_request = function(drone_data, player, target)
 
     local path_id = player.surface.request_path {
         bounding_box = prototype.collision_box,
-        collision_mask = prototype.collision_mask_with_flags,
+        collision_mask = prototype.collision_mask,
         start = player.position,
         goal = target.position,
         force = player.force,
@@ -402,7 +402,7 @@ local get_drone_stack_capacity = function(force)
     if drone_stack_capacity then
         return drone_stack_capacity
     end
-    drone_stack_capacity = game.entity_prototypes[proxy_name].get_inventory_size(defines.inventory.chest)
+    drone_stack_capacity = prototypes.entity[proxy_name].get_inventory_size(defines.inventory.chest)
     return drone_stack_capacity
 end
 
@@ -450,7 +450,7 @@ local make_player_drone = function(player)
         force = player.force,
     }
 
-    script.register_on_entity_destroyed(drone)
+    script.register_on_object_destroyed(drone)
 
     return drone
 end
@@ -499,7 +499,7 @@ local drone_wait = function(drone_data, ticks)
     if not (drone and drone.valid) then
         return
     end
-    drone.set_command {
+    drone.commandable.set_command {
         type = defines.command.stop,
         ticks_to_wait = ticks,
         distraction = defines.distraction.none,
@@ -744,7 +744,7 @@ local check_deconstruction = function(entity, player)
     local capacity = get_drone_stack_capacity(force)
     local total_contents = contents(entity)
     local stack_sum = 0
-    local items = game.item_prototypes
+    local items = prototypes.item
     for name, count in pairs(total_contents) do
         stack_sum = stack_sum + (count / items[name].stack_size)
     end
@@ -819,7 +819,7 @@ local get_repair_items = function()
     end
     -- Deliberately not 'local'
     repair_items = {}
-    for name, item in pairs(game.item_prototypes) do
+    for name, item in pairs(prototypes.item) do
         if item.type == "repair-tool" then
             repair_items[name] = item
         end
@@ -1202,7 +1202,7 @@ local move_to_order_target = function(drone_data, target)
         return true
     end
 
-    drone.set_command {
+    drone.commandable.set_command {
         type = defines.command.go_to_location,
         destination_entity = target,
         radius = ((target == drone_data.character and 0) or get_radius(drone, ranges.interact)) +
@@ -1226,7 +1226,7 @@ local move_to_player = function(drone_data, player)
         return true
     end
 
-    drone.set_command {
+    drone.commandable.set_command {
         type = defines.command.go_to_location,
         destination_entity = player.character or nil,
         destination = (not player.character and player.position) or nil,
@@ -1252,7 +1252,7 @@ update_drone_sticker = function(drone_data)
     local renderings = drone_data.renderings
     if renderings then
         for _, v in pairs(renderings) do
-            rendering.destroy(v)
+            v.destroy()
         end
         drone_data.renderings = nil
     end
@@ -1286,8 +1286,8 @@ update_drone_sticker = function(drone_data)
     })
 
     if number == 1 then
-        insert(renderings, rendering.draw_sprite {
-            sprite = "item/" .. next(contents),
+        local attemptor = rendering.draw_sprite {
+            sprite = "item/" .. contents[1].name,
             target = drone,
             surface = surface,
             forces = forces,
@@ -1295,7 +1295,8 @@ update_drone_sticker = function(drone_data)
             target_offset = { 0, -0.5 },
             x_scale = 0.5,
             y_scale = 0.5,
-        })
+        }
+        insert(renderings, attemptor)
         return
     end
 
@@ -1633,7 +1634,7 @@ local process_repair_command = function(drone_data)
     end
 
     local health = target.health
-    local repair_speed = game.item_prototypes[stack.name].speed
+    local repair_speed = prototypes.item[stack.name].speed
     if not repair_speed then
         -- print("WTF, maybe some migration?")
         return cancel_drone_order(drone_data)
@@ -2184,7 +2185,7 @@ lib.events = {
     [defines.events.on_robot_mined_entity] = on_entity_removed,
     [defines.events.on_player_mined_entity] = on_entity_removed,
     [defines.events.on_pre_ghost_deconstructed] = on_entity_removed,
-    [defines.events.on_entity_destroyed] = on_entity_removed,
+    [defines.events.on_entity_died] = on_entity_removed,
 
     [defines.events.on_player_created] = on_player_created,
 
@@ -2199,8 +2200,8 @@ lib.events = {
 }
 
 lib.on_load = function()
-    data = global.construction_drone or data
-    global.construction_drone = data
+    data = storage.construction_drone or data
+    storage.construction_drone = data
 
     on_runtime_mod_setting_changed()
 end
@@ -2210,7 +2211,7 @@ lib.on_init = function()
     game.map_settings.steering.default.force_unit_fuzzy_goto_behavior = false
     game.map_settings.steering.moving.force_unit_fuzzy_goto_behavior = false
     game.map_settings.path_finder.use_path_cache = false
-    global.construction_drone = global.construction_drone or data
+    storage.construction_drone = storage.construction_drone or data
 
     for _, player in pairs(game.players) do
         player.set_shortcut_toggled("construction-drone-toggle", true)

@@ -71,7 +71,7 @@ local unit = {
     not_controllable = true,
     movement_speed = 0.16,
     distance_per_frame = 0.1,
-    pollution_to_join_attack = 20000000,
+    -- absorptions_to_join_attack = 20000000,
     distraction_cooldown = 30000000,
     min_pursue_time = 0,
     max_pursue_distance = 0,
@@ -145,10 +145,17 @@ local recipe = {
     name = name,
     localised_name = name,
     category = data.raw.recipe["construction-robot"].category,
+    allow_quality = false,
     enabled = true,
-    ingredients = { { "iron-plate", 5 }, { "iron-gear-wheel", 5 }, { "electronic-circuit", 10 } },
+    ingredients = {
+        { type="item", name="iron-plate", amount = 5 },
+        { type="item", name="iron-gear-wheel", amount = 5 },
+        { type="item", name="electronic-circuit", amount = 10 }
+    },
     energy_required = 1,
-    result = name,
+    results = {
+        {type="item", name = name, amount = 1}
+    },
 }
 
 local proxy_chest_name = names.entities.construction_drone_proxy_chest
