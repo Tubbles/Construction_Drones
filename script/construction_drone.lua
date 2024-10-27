@@ -317,8 +317,8 @@ local rip_inventory = function(inventory, list)
     if inventory.is_empty() then
         return
     end
-    for name, count in pairs(inventory.get_contents()) do
-        list[name] = (list[name] or 0) + count
+    for index, item_with_quality in pairs(inventory.get_contents()) do
+        list[item_with_quality.name] = (list[item_with_quality.name] or 0) + item_with_quality.count
     end
 end
 
@@ -1302,10 +1302,10 @@ update_drone_sticker = function(drone_data)
 
     local offset_index = 1
 
-    for name, _ in pairs(contents) do
+    for _, content in pairs(contents) do
         local offset = offsets[offset_index]
         insert(renderings, rendering.draw_sprite {
-            sprite = "item/" .. name,
+            sprite = "item/" .. content.name,
             target = drone,
             surface = surface,
             forces = forces,
