@@ -120,7 +120,6 @@ local get_beam_orientation = function(source_position, target_position)
     local y1 = (x * sin(angle)) + (y * cos(angle))
 
     return orientation, { x1, y1 - 0.5 }
-
 end
 
 
@@ -317,8 +316,8 @@ local rip_inventory = function(inventory, list)
     if inventory.is_empty() then
         return
     end
-    for index, item_with_quality in pairs(inventory.get_contents()) do
-        list[item_with_quality.name] = (list[item_with_quality.name] or 0) + item_with_quality.count
+    for _, item in pairs(inventory.get_contents()) do
+        list[item.name] = (list[item.name] or 0) + item.count
     end
 end
 
@@ -343,8 +342,8 @@ local contents = function(entity)
         for k = 1, max_line_index do
             local transport_line = get_transport_line(k)
             if transport_line then
-                for name, count in pairs(transport_line.get_contents()) do
-                    contents[name] = (contents[name] or 0) + count
+                for _, item in pairs(transport_line.get_contents()) do
+                    contents[item.name] = (contents[item.name] or 0) + item.count
                 end
             else
                 break
@@ -393,7 +392,6 @@ local make_path_request = function(drone_data, player, target)
 
     local index = player.index
     data.request_count[index] = (data.request_count[index] or 0) + 1
-
 end
 
 
@@ -525,7 +523,6 @@ local set_drone_idle = function(drone)
     end
 
     set_drone_order(drone, {})
-
 end
 
 
@@ -594,7 +591,6 @@ end
 
 
 local check_upgrade = function(entity, player)
-
     if not (entity and entity.valid) then
         return
     end
@@ -710,7 +706,6 @@ local check_cliff_deconstruction = function(entity, player)
     make_path_request(drone_data, player, entity)
 
     data.already_targeted[unique_index(entity)] = true
-
 end
 
 
@@ -752,7 +747,6 @@ local check_deconstruction = function(entity, player)
     needed = needed - sent
 
     if needed <= 1 then
-
         local extra_targets = {}
         local count = 10
 
@@ -792,7 +786,6 @@ local check_deconstruction = function(entity, player)
 
         make_path_request(drone_data, player, target)
         return
-
     end
 
     for k = 1, math.min(needed, 10, player.get_item_count(names.units.construction_drone)) do
@@ -829,7 +822,6 @@ end
 
 
 local check_repair = function(entity, player)
-
     if not (entity and entity.valid) then
         return true
     end
@@ -876,12 +868,10 @@ local check_repair = function(entity, player)
     make_path_request(drone_data, player, entity)
 
     data.already_targeted[index] = true
-
 end
 
 
 local check_job = function(player, job)
-
     if job.type == drone_orders.construct then
         check_ghost(job.entity, player)
         return
@@ -906,7 +896,6 @@ local check_job = function(player, job)
         check_repair(job.entity, player)
         return
     end
-
 end
 
 
@@ -985,19 +974,16 @@ local scan_for_nearby_jobs = function(player, area)
             player_queue[index] = { type = drone_orders.upgrade, entity = entity }
             return true
         end
-
     end
 
 
     for _, entity in pairs(entities) do
         check_entity(entity)
     end
-
 end
 
 
 local check_player_jobs = function(player)
-
     if not can_player_spawn_drones(player) then
         return
     end
@@ -1021,7 +1007,6 @@ local check_player_jobs = function(player)
         check_job(player, job)
         queue[index] = nil
     end
-
 end
 
 
@@ -1075,7 +1060,6 @@ end
 
 local insert = table.insert
 local schedule_new_searches = function()
-
     local queue = data.search_queue
     if next(queue) then
         return
@@ -1089,7 +1073,6 @@ local schedule_new_searches = function()
             end
         end
     end
-
 end
 
 
@@ -1129,12 +1112,10 @@ local clear_extra_targets = function(drone_data)
             data.sent_deconstruction[index] = (data.sent_deconstruction[index] or 1) - 1
         end
     end
-
 end
 
 
 local clear_target = function(drone_data)
-
     local target = drone_data.target
     if not (target and target.valid) then
         return
@@ -1148,7 +1129,6 @@ local clear_target = function(drone_data)
     end
 
     data.already_targeted[index] = nil
-
 end
 
 
@@ -1186,7 +1166,6 @@ local cancel_drone_order = function(drone_data, on_removed)
     if not on_removed then
         set_drone_idle(drone)
     end
-
 end
 
 
@@ -1210,7 +1189,6 @@ local move_to_order_target = function(drone_data, target)
         distraction = defines.distraction.none,
         pathfind_flags = drone_pathfind_flags,
     }
-
 end
 
 
@@ -1234,7 +1212,6 @@ local move_to_player = function(drone_data, player)
         distraction = defines.distraction.none,
         pathfind_flags = drone_pathfind_flags,
     }
-
 end
 
 
@@ -1302,10 +1279,10 @@ update_drone_sticker = function(drone_data)
 
     local offset_index = 1
 
-    for _, content in pairs(contents) do
+    for _, item in pairs(contents) do
         local offset = offsets[offset_index]
         insert(renderings, rendering.draw_sprite {
-            sprite = "item/" .. content.name,
+            sprite = "item/" .. item.name,
             target = drone,
             surface = surface,
             forces = forces,
@@ -1316,7 +1293,6 @@ update_drone_sticker = function(drone_data)
         })
         offset_index = offset_index + 1
     end
-
 end
 
 
@@ -1345,7 +1321,6 @@ local process_pickup_command = function(drone_data)
     drone_data.pickup = nil
 
     return process_drone_command(drone_data)
-
 end
 
 
@@ -1366,7 +1341,6 @@ local process_dropoff_command = function(drone_data)
     end
 
     find_a_player(drone_data)
-
 end
 
 
@@ -1405,7 +1379,6 @@ local unit_clear_target = function(unit, target)
     unit.speed = unit.prototype.speed
     local non_colliding_position = unit.surface.find_non_colliding_position(unit.name, position, 0, 0.5)
     unit.commandable.set_command { type = defines.command.go_to_location, destination = position, radius = 1 }
-
 end
 
 
@@ -1508,7 +1481,6 @@ end
 
 
 local process_failed_command = function(drone_data)
-
     local drone = drone_data.entity
 
     local modifier = drone.ai_settings.path_resolution_modifier
@@ -1521,7 +1493,6 @@ local process_failed_command = function(drone_data)
     drone.ai_settings.path_resolution_modifier = 0
     cancel_drone_order(drone_data, true)
     process_return_to_player_command(drone_data, true)
-
 end
 
 
@@ -1911,7 +1882,6 @@ local directions = {
 }
 
 process_return_to_player_command = function(drone_data, force)
-
     -- print("returning to dude")
 
     local player = drone_data.player
@@ -1948,13 +1918,11 @@ process_return_to_player_command = function(drone_data, force)
     data.drone_commands[unit_number] = nil
 
     drone_data.entity.destroy()
-
 end
 
 
 local max = math.max
 process_drone_command = function(drone_data, result)
-
     local drone = drone_data.entity
     if not (drone and drone.valid) then
         return
@@ -2033,7 +2001,6 @@ end
 
 
 local on_entity_removed = function(event)
-
     local unit_number
     local entity = event.entity
     if entity and entity.valid then
@@ -2058,14 +2025,13 @@ local on_entity_removed = function(event)
         if buffer and buffer.valid then
             local inventory = proxy_chest.get_inventory(defines.inventory.chest)
             if inventory and inventory.valid then
-                for name, count in pairs(inventory.get_contents()) do
-                    buffer.insert { name = name, count = count }
+                for _, item in pairs(inventory.get_contents()) do
+                    buffer.insert { name = item.name, count = item.count, quality = item.quality }
                 end
             end
         end
         proxy_chest.destroy()
     end
-
 end
 
 
@@ -2076,7 +2042,6 @@ end
 
 
 local on_entity_cloned = function(event)
-
     local destination = event.destination
     if not (destination and destination.valid) then
         return
@@ -2102,7 +2067,6 @@ local on_entity_cloned = function(event)
         set_drone_order(destination, new_data)
         return
     end
-
 end
 
 
@@ -2151,7 +2115,6 @@ local on_script_path_request_finished = function(event)
     end
 
     set_drone_order(drone, drone_data)
-
 end
 
 
@@ -2240,7 +2203,6 @@ lib.on_configuration_changed = function()
     data.search_queue = data.search_queue or {}
     data.job_queue = data.job_queue or {}
     data.already_targeted = data.already_targeted or {}
-
 end
 
 

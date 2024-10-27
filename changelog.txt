@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.0.1
+Date: TBD
+  Bugfixes:
+    - Fixed errors of type "Unknown item name: 1"
+---------------------------------------------------------------------------------------------------
+Version: 2.0.0
+Date: 2024-10-25T23:41:15+02:00
+  Major Features:
+    - Added support for Factorio 2.0 and Space Age expansion. Please note that the support is highly experimental
+---------------------------------------------------------------------------------------------------
 Version: 1.0.7-rc
 Date: 2022-06-19T20:09:37+02:00
   Bugfixes:
