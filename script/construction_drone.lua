@@ -1404,7 +1404,7 @@ local unit_clear_target = function(unit, target)
     end
     unit.speed = unit.prototype.speed
     local non_colliding_position = unit.surface.find_non_colliding_position(unit.name, position, 0, 0.5)
-    unit.set_command { type = defines.command.go_to_location, destination = position, radius = 1 }
+    unit.commandable.set_command { type = defines.command.go_to_location, destination = position, radius = 1 }
 
 end
 
@@ -1641,7 +1641,7 @@ local process_repair_command = function(drone_data)
     end
 
     local ticks_to_repair = random(20, 30)
-    local repair_cycles_left = math.ceil((target.prototype.max_health - target.health) / repair_speed)
+    local repair_cycles_left = math.ceil((target.max_health - target.health) / repair_speed)
     local max_left = math.ceil(stack.durability / repair_speed)
     ticks_to_repair = math.min(ticks_to_repair, repair_cycles_left)
     ticks_to_repair = math.min(ticks_to_repair, max_left)
